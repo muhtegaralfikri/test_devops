@@ -1,4 +1,4 @@
-const todoForm = document.getElementById("todoForm");
+﻿const todoForm = document.getElementById("todoForm");
 const todoInput = document.getElementById("todoInput");
 const todoList = document.getElementById("todoList");
 const todoCount = document.getElementById("todoCount");
@@ -67,7 +67,7 @@ function renderTodos() {
         />
         <span class="todo-text">${escapeHtml(todo.title)}</span>
       </div>
-      <button class="delete-btn" onclick="deleteTodo(${todo.id})" title="Hapus">?</button>
+      <button class="delete-btn" onclick="deleteTodo(${todo.id})" title="Hapus">&times;</button>
     </li>
   `
     )
@@ -153,5 +153,4 @@ function escapeHtml(str) {
 // Initial Run
 checkHealth();
 fetchTodos();
-// Periodik health check tiap 15 detik
 setInterval(checkHealth, 15000);
