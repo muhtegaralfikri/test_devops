@@ -49,6 +49,9 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Set up QEMU (untuk prosesor ARM64 seperti STB)
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -68,11 +71,12 @@ jobs:
             type=raw,value=latest
             type=sha,format=short
 
-      - name: Build and Push Docker Image
+      - name: Build and Push Multi-Arch Docker Image (AMD64 & ARM64)
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
