@@ -1,34 +1,51 @@
-# 1. Base image resmi Bun dengan Alpine Linux (sangat ringan ~90MB)
-FROM oven/bun:1-alpine AS base
-WORKDIR /app
+# ==============================================================================
+# TAHAP 1: BUILDER (Kompilasi ke Single Standalone Binary)
+# ==============================================================================
+FROM oven/bun:1-alpine AS builder
+WORKDIR /build
 
-# 2. Tahap Dependencies (Cache optimization)
-# Hanya salin package.json & lockfile terlebih dahulu agar Docker cache efisien
+# Salin manifest dependensi
 COPY package.json bun.lock* ./
-RUN bun install --frozen-lockfile --production
+RUN bun install --frozen-lockfile
 
-# 3. Salin seluruh source code & aset statis
+# Salin source code backend & konfigurasi
 COPY src ./src
-COPY public ./public
 COPY tsconfig.json ./
 
-# Buat direktori data untuk SQLite dan berikan hak akses
+# COMPILE DEWA: Gabungkan seluruh TypeScript + Express + Bun ke 1 File Binary!
+RUN bun build --compile --minify src/index.ts --outfile server
+
+# ==============================================================================
+# TAHAP 2: RUNNER (Image Produksi Ultra-Ringan Berbasis Alpine)
+# ==============================================================================
+FROM alpine:3.20 AS runner
+WORKDIR /app
+
+# Hanya pasang library C++ minimal yang dibutuhkan binary & wget untuk healthcheck
+RUN apk add --no-cache libstdc++ libgcc wget
+
+# Buat user non-root bun (UID 1000) demi keamanan
+RUN addgroup -g 1000 bun && adduser -u 1000 -G bun -s /bin/sh -D bun
+
+# Salin HANYA file binary 'server' dan aset statis 'public/'
+# FOLDER node_modules DAN COMPILER BUN DIBUANG SEPENUHNYA!
+COPY --from=builder /build/server ./server
+COPY public ./public
+
+# Siapkan direktori penyimpanan database SQLite
 RUN mkdir -p /app/data && chown -R bun:bun /app
 
-# Gunakan non-root user bawaan bun untuk keamanan
 USER bun
 
-# Environment variable
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV DB_PATH=/app/data/todos.db
 
-# Expose port aplikasi
 EXPOSE 3000
 
-# Health check container bawaan Docker
+# Docker Healthcheck bawaan
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD wget -q --spider http://localhost:3000/health || exit 1
 
-# Jalankan aplikasi dengan runtime Bun
-CMD ["bun", "run", "src/index.ts"]
+# Jalankan langsung binary mandiri hasil kompilasi
+CMD ["./server"]
