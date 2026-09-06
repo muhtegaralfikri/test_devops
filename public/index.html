@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -14,10 +14,22 @@
     <!-- Header -->
     <header class="app-header">
       <div class="header-badges">
-        <span class="badge badge-bun">? Bun Runtime</span>
-        <span class="badge badge-express">?? Express.js</span>
-        <span class="badge badge-docker">?? Dockerized</span>
-        <span class="badge badge-cicd">?? CI/CD Ready</span>
+        <span class="badge badge-bun">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          Bun Runtime
+        </span>
+        <span class="badge badge-express">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          Express.js
+        </span>
+        <span class="badge badge-docker">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+          Docker STB (ARM64)
+        </span>
+        <span class="badge badge-cicd">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          Watchtower Auto-Deploy
+        </span>
       </div>
       <h1>DevOps Todo App</h1>
       <p class="subtitle">Aplikasi sederhana untuk belajar pipeline dari Lokal ke Production Server</p>
@@ -63,36 +75,39 @@
 
     <!-- DevOps Pipeline Learning Card -->
     <footer class="pipeline-info">
-      <h3>?? DevOps Pipeline Flow:</h3>
+      <h3>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 6px;"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg>
+        DevOps Pipeline Flow:
+      </h3>
       <div class="pipeline-steps">
         <div class="step">
           <span class="step-num">1</span>
           <strong>Local Code</strong>
           <small>Bun + Express</small>
         </div>
-        <div class="arrow">?</div>
+        <div class="arrow">&rarr;</div>
         <div class="step">
           <span class="step-num">2</span>
           <strong>Container</strong>
           <small>Docker Build</small>
         </div>
-        <div class="arrow">?</div>
+        <div class="arrow">&rarr;</div>
         <div class="step">
           <span class="step-num">3</span>
           <strong>CI/CD</strong>
-          <small>GitHub / GitLab</small>
+          <small>GitHub Actions</small>
         </div>
-        <div class="arrow">?</div>
+        <div class="arrow">&rarr;</div>
         <div class="step">
           <span class="step-num">4</span>
           <strong>Registry</strong>
-          <small>GHCR / Docker Hub</small>
+          <small>GHCR (ARM64)</small>
         </div>
-        <div class="arrow">?</div>
+        <div class="arrow">&rarr;</div>
         <div class="step">
           <span class="step-num">5</span>
-          <strong>Production</strong>
-          <small>VPS Server</small>
+          <strong>STB Server</strong>
+          <small>Armbian Linux</small>
         </div>
       </div>
     </footer>

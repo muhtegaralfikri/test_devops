@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --primary: #4f46e5;
   --primary-hover: #4338ca;
   --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
@@ -50,9 +50,12 @@ body {
 }
 
 .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.75rem;
   font-weight: 600;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid var(--card-border);
@@ -83,7 +86,7 @@ body {
   background: rgba(16, 185, 129, 0.1);
   border: 1px solid rgba(16, 185, 129, 0.25);
   color: #34d399;
-  padding: 4px 14px;
+  padding: 6px 16px;
   border-radius: 9999px;
   font-size: 0.8rem;
   font-weight: 500;
@@ -315,5 +318,6 @@ body {
 
 .arrow {
   color: var(--text-muted);
-  font-size: 0.8rem;
+  font-size: 1rem;
+  font-weight: bold;
 }
