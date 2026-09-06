@@ -1,0 +1,67 @@
+# ==============================================================================
+# GitLab CI/CD Pipeline - DevOps Todo App (Bun + Express + Docker)
+# ==============================================================================
+
+stages:
+  - test
+  - build
+  - deploy
+
+variables:
+  DOCKER_IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  DOCKER_IMAGE_LATEST: $CI_REGISTRY_IMAGE:latest
+
+# ------------------------------------------------------------------------------
+# 1. Tahap Test (Continuous Integration)
+# ------------------------------------------------------------------------------
+unit_test:
+  stage: test
+  image: oven/bun:1-alpine
+  script:
+    - bun install --frozen-lockfile
+    - bun test
+
+# ------------------------------------------------------------------------------
+# 2. Tahap Build & Push Docker Image
+# ------------------------------------------------------------------------------
+docker_build:
+  stage: build
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  before_script:
+    # Login otomatis ke GitLab Container Registry
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  script:
+    - docker build -t $DOCKER_IMAGE_TAG -t $DOCKER_IMAGE_LATEST .
+    - docker push $DOCKER_IMAGE_TAG
+    - docker push $DOCKER_IMAGE_LATEST
+  only:
+    - main
+
+# ------------------------------------------------------------------------------
+# 3. Tahap Deploy ke VPS via SSH
+# ------------------------------------------------------------------------------
+deploy_to_server:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    # Setup SSH client
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$SERVER_SSH_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+  script:
+    - |
+      ssh $SERVER_USER@$SERVER_HOST "
+        cd /home/$SERVER_USER/todo-app &&
+        echo '$CI_REGISTRY_PASSWORD' | docker login -u '$CI_REGISTRY_USER' --password-stdin $CI_REGISTRY &&
+        docker compose pull &&
+        docker compose up -d --remove-orphans &&
+        docker image prune -f
+      "
+  only:
+    - main
+  when: manual # Opsional: manual approval untuk deploy production

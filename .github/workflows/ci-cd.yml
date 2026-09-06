@@ -1,0 +1,118 @@
+name: CI/CD Pipeline - DevOps Todo App
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ============================================================================
+  # 1. CI (Continuous Integration): Validasi & Tes Otomatis
+  # ============================================================================
+  test:
+    name: Run Automated Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun Runtime
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run Tests (bun test)
+        run: bun test
+
+  # ============================================================================
+  # 2. CD (Continuous Delivery): Build & Push Container Image
+  # ============================================================================
+  build-and-push:
+    name: Build & Push Docker Image
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=sha,format=short
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================================================
+  # 3. CD (Continuous Deployment): Deploy Otomatis ke VPS Server
+  # ============================================================================
+  deploy:
+    name: Deploy to Production Server
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Deploy via SSH to VPS
+        # Gunakan action SSH atau script SSH untuk update container di server
+        uses: appleboy/ssh-action@v1.0.3
+        # Catatan: Rahasia berikut diset di GitHub Repo Settings -> Secrets -> Actions
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+        if: env.SERVER_HOST != ''
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            echo "?? Menjalankan deployment di server..."
+            cd /home/${{ secrets.SERVER_USER }}/todo-app || exit 1
+            
+            # Login ke GHCR di server
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # Tarik image terbaru & restart container
+            docker compose pull
+            docker compose up -d --remove-orphans
+            
+            # Bersihkan image lama yang tidak terpakai
+            docker image prune -f
+            
+            echo "? Deployment selesai!"

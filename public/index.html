@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Todo List - DevOps Learning (Bun + Express)</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-badges">
+        <span class="badge badge-bun">? Bun Runtime</span>
+        <span class="badge badge-express">?? Express.js</span>
+        <span class="badge badge-docker">?? Dockerized</span>
+        <span class="badge badge-cicd">?? CI/CD Ready</span>
+      </div>
+      <h1>DevOps Todo App</h1>
+      <p class="subtitle">Aplikasi sederhana untuk belajar pipeline dari Lokal ke Production Server</p>
+      
+      <!-- System Health Indicator -->
+      <div id="healthIndicator" class="health-indicator">
+        <span class="pulse-dot"></span>
+        <span id="healthText">Memeriksa koneksi server...</span>
+      </div>
+    </header>
+
+    <!-- Main Card -->
+    <main class="todo-card">
+      <!-- Form Input -->
+      <form id="todoForm" class="todo-form">
+        <input 
+          type="text" 
+          id="todoInput" 
+          placeholder="Tulis tugas baru (misal: Setup Docker Compose di VPS)..." 
+          autocomplete="off"
+          required
+        />
+        <button type="submit" id="addBtn">Tambah</button>
+      </form>
+
+      <!-- Filter Tabs & Stats -->
+      <div class="todo-toolbar">
+        <div class="filter-tabs">
+          <button class="tab-btn active" data-filter="all">Semua</button>
+          <button class="tab-btn" data-filter="active">Aktif</button>
+          <button class="tab-btn" data-filter="completed">Selesai</button>
+        </div>
+        <div class="todo-stats">
+          <span id="todoCount">0 tugas tersisa</span>
+        </div>
+      </div>
+
+      <!-- Todo List Container -->
+      <ul id="todoList" class="todo-list">
+        <li class="loading-state">Memuat tugas...</li>
+      </ul>
+    </main>
+
+    <!-- DevOps Pipeline Learning Card -->
+    <footer class="pipeline-info">
+      <h3>?? DevOps Pipeline Flow:</h3>
+      <div class="pipeline-steps">
+        <div class="step">
+          <span class="step-num">1</span>
+          <strong>Local Code</strong>
+          <small>Bun + Express</small>
+        </div>
+        <div class="arrow">?</div>
+        <div class="step">
+          <span class="step-num">2</span>
+          <strong>Container</strong>
+          <small>Docker Build</small>
+        </div>
+        <div class="arrow">?</div>
+        <div class="step">
+          <span class="step-num">3</span>
+          <strong>CI/CD</strong>
+          <small>GitHub / GitLab</small>
+        </div>
+        <div class="arrow">?</div>
+        <div class="step">
+          <span class="step-num">4</span>
+          <strong>Registry</strong>
+          <small>GHCR / Docker Hub</small>
+        </div>
+        <div class="arrow">?</div>
+        <div class="step">
+          <span class="step-num">5</span>
+          <strong>Production</strong>
+          <small>VPS Server</small>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
