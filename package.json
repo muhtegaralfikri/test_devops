@@ -1,18 +1,15 @@
 {
   "name": "todo-devops-bun",
   "version": "1.0.0",
-  "description": "Simple Todo List app with Express and Bun runtime for learning DevOps and CI/CD",
+  "description": "Simple Todo List app with Bun runtime for learning DevOps and CI/CD",
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
     "start": "bun run src/index.ts",
     "dev": "bun --watch src/index.ts",
+    "build": "bun build src/index.ts --target=bun --outdir=dist --minify",
     "test": "bun test"
   },
-  "dependencies": {
-    "express": "^4.21.2"
-  },
-  "devDependencies": {
-    "@types/express": "^5.0.0"
-  }
+  "dependencies": {},
+  "devDependencies": {}
 }

@@ -27,8 +27,11 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Install Dependencies
-        run: bun install --frozen-lockfile
+      - name: Install Dependencies (if lockfile exists)
+        run: |
+          if [ -f bun.lock ] || [ -f bun.lockb ]; then
+            bun install --frozen-lockfile
+          fi
 
       - name: Run Tests (bun test)
         run: bun test

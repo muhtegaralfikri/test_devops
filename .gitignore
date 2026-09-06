@@ -4,5 +4,6 @@ data/
 *.db-journal
 .env
 .env.local
+dist/
 .DS_Store
 Thumbs.db

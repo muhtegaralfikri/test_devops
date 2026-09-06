@@ -1,5 +1,5 @@
 # ==============================================================================
-# GitLab CI/CD Pipeline - DevOps Todo App (Bun + Express + Docker)
+# GitLab CI/CD Pipeline - DevOps Todo App (Bun Native + Docker)
 # ==============================================================================
 
 stages:
@@ -18,7 +18,6 @@ unit_test:
   stage: test
   image: oven/bun:1-alpine
   script:
-    - bun install --frozen-lockfile
     - bun test
 
 # ------------------------------------------------------------------------------

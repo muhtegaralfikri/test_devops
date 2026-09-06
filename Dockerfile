@@ -1,38 +1,27 @@
 # ==============================================================================
-# TAHAP 1: BUILDER (Kompilasi ke Single Standalone Binary)
+# TAHAP 1: BUILDER (Bundle & Minify Native Bun Source)
 # ==============================================================================
 FROM oven/bun:1-alpine AS builder
 WORKDIR /build
 
-# Salin manifest dependensi
-COPY package.json bun.lock* ./
-RUN bun install --frozen-lockfile
-
-# Salin source code backend & konfigurasi
+COPY tsconfig.json package.json ./
 COPY src ./src
-COPY tsconfig.json ./
 
-# COMPILE DEWA: Gabungkan seluruh TypeScript + Express + Bun ke 1 File Binary!
-RUN bun build --compile --minify src/index.ts --outfile server
+# Bundle & minify seluruh TypeScript native backend menjadi satu file JS kecil (~3.5 KB)
+RUN bun build src/index.ts --target=bun --outdir=dist --minify
 
 # ==============================================================================
-# TAHAP 2: RUNNER (Image Produksi Ultra-Ringan Berbasis Alpine)
+# TAHAP 2: RUNNER (Ultra-Clean Production Image)
 # ==============================================================================
-FROM alpine:3.20 AS runner
+FROM oven/bun:1-alpine AS runner
 WORKDIR /app
 
-# Hanya pasang library C++ minimal yang dibutuhkan binary & wget untuk healthcheck
-RUN apk add --no-cache libstdc++ libgcc wget
-
-# Buat user non-root bun (UID 1000) demi keamanan
-RUN addgroup -g 1000 bun && adduser -u 1000 -G bun -s /bin/sh -D bun
-
-# Salin HANYA file binary 'server' dan aset statis 'public/'
-# FOLDER node_modules DAN COMPILER BUN DIBUANG SEPENUHNYA!
-COPY --from=builder /build/server ./server
+# Salin HANYA file bundle index.js dan folder frontend public/
+# Source code mentah TS, tsconfig, dan tools development dibuang sepenuhnya
+COPY --from=builder /build/dist/index.js ./index.js
 COPY public ./public
 
-# Siapkan direktori penyimpanan database SQLite
+# Buat direktori data untuk SQLite & hak akses user non-root
 RUN mkdir -p /app/data && chown -R bun:bun /app
 
 USER bun
@@ -43,9 +32,9 @@ ENV DB_PATH=/app/data/todos.db
 
 EXPOSE 3000
 
-# Docker Healthcheck bawaan
+# Healthcheck menggunakan fetch native bawaan Bun (cepat dan tanpa dependensi curl/wget)
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget -q --spider http://localhost:3000/health || exit 1
+  CMD bun -e "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
-# Jalankan langsung binary mandiri hasil kompilasi
-CMD ["./server"]
+# Jalankan bundle native dengan Bun
+CMD ["bun", "run", "index.js"]

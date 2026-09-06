@@ -11,3 +11,4 @@ data
 .idea
 src/**/*.test.ts
 .env*
+dist/
