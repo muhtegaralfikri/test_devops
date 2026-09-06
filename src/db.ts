@@ -19,6 +19,14 @@ if (!fs.existsSync(dir)) {
 
 export const db = new Database(dbPath);
 
+// Optimasi RAM (<2MB) & keawetan storage eMMC STB
+db.run("PRAGMA journal_mode = WAL;");
+db.run("PRAGMA synchronous = NORMAL;");
+db.run("PRAGMA cache_size = -2000;");
+db.run("PRAGMA temp_store = MEMORY;");
+db.run("PRAGMA busy_timeout = 5000;");
+db.run("PRAGMA wal_autocheckpoint = 100;");
+
 // Inisialisasi tabel jika belum ada
 db.run(`
   CREATE TABLE IF NOT EXISTS todos (
